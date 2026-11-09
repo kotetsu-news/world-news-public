@@ -2,6 +2,7 @@ import streamlit as st
 import feedparser
 from deep_translator import MyMemoryTranslator, GoogleTranslator
 import time
+import hashlib
 
 st.set_page_config(
     page_title="World News",
@@ -12,40 +13,48 @@ st.set_page_config(
 st.title("🌐 World News")
 st.caption("世界の主要メディア・最新ニュース速報（本場現地版・日本語見出し表示）")
 
-# 翻訳関数（MyMemory優先＋キャッシュ）
-@st.cache_data(ttl=3600)
+# 翻訳関数（エラーを見えるようにする）
+@st.cache_data(ttl=1800)
 def translate_to_japanese(text: str) -> str:
+    if not text or text == "タイトルなし":
+        return text
     try:
-        if not text or text == "タイトルなし":
-            return text
-        # まずMyMemoryを試す（制限が比較的緩い）
-        return MyMemoryTranslator(source='auto', target='ja').translate(text)
-    except:
+        # MyMemoryを優先
+        result = MyMemoryTranslator(source='auto', target='ja').translate(text)
+        return result
+    except Exception as e1:
         try:
-            time.sleep(0.4)  # 少し待ってからGoogleを試す
-            return GoogleTranslator(source='auto', target='ja').translate(text)
-        except:
-            return text  # 失敗したら原文を返す
+            time.sleep(0.6)
+            result = GoogleTranslator(source='auto', target='ja').translate(text)
+            return result
+        except Exception as e2:
+            # 失敗したら警告を出す
+            st.warning(f"翻訳失敗（原文のまま表示）: {str(e2)[:80]}")
+            return text
 
-def display_feed(url, limit=5, always_translate=False):
+def display_feed(url, limit=5, always_translate=False, section_name=""):
     try:
         feed = feedparser.parse(url)
         if not feed.entries:
             st.info("ニュースを取得できませんでした。")
             return
 
-        # 常に翻訳するかどうかの判定
+        # チェックボックスのkeyを短くする（重要）
+        short_key = hashlib.md5(url.encode()).hexdigest()[:10]
+
         if always_translate:
             do_translate = True
+            st.caption("※ このセクションは常に日本語表示です")
         else:
-            do_translate = st.checkbox("この見出しを日本語に翻訳する", key=f"trans_{url}")
+            do_translate = st.checkbox("この見出しを日本語に翻訳する", key=f"trans_{short_key}")
 
         for entry in feed.entries[:limit]:
             original_title = entry.get('title', 'タイトルなし')
             link = entry.get('link', '#')
 
             if do_translate:
-                title = translate_to_japanese(original_title)
+                with st.spinner("翻訳中..."):
+                    title = translate_to_japanese(original_title)
             else:
                 title = original_title
 
@@ -60,12 +69,12 @@ def display_feed(url, limit=5, always_translate=False):
 # ---------------------------------------------------------
 st.header("🔥 トランプ速報・最新注目ニュース")
 trump_rss = "https://news.google.com/rss/search?q=Trump+when:24h&hl=ja&gl=US&ceid=US:en"
-display_feed(trump_rss, limit=7, always_translate=True)  # ← ここだけTrue
+display_feed(trump_rss, limit=7, always_translate=True)
 
 st.divider()
 
 # ---------------------------------------------------------
-# 2. 海外主要メディア一覧（デフォルト英語・必要時だけ翻訳）
+# 2. 海外主要メディア一覧
 # ---------------------------------------------------------
 st.header("📰 海外主要メディア一覧（本場現地版・21媒体）")
 
