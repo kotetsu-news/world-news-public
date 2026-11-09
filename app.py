@@ -14,18 +14,18 @@ st.title("🌐 World News")
 st.caption("世界の主要メディア・最新ニュース速報（本場現地版・日本語見出し表示）")
 
 # 翻訳をキャッシュして高速化（同じタイトルを何度も翻訳しない）
-@st.cache_data(ttl=3600)  # 1時間キャッシュ
+@st.cache_data(ttl=3600)
 def translate_to_japanese(text: str) -> str:
     try:
         if not text or text == "タイトルなし":
             return text
-        # すでに日本語っぽい場合は翻訳しない（簡易判定）
-        if any(ord(c) > 0x3000 for c in text):  # 日本語文字が含まれていればそのまま
-            return text
-        return GoogleTranslator(source='auto', target='ja').translate(text)
+        # 日本語判定は一旦外す
+        translated = GoogleTranslator(source='auto', target='ja').translate(text)
+        return translated
     except Exception as e:
-        # 翻訳失敗時は原文を返す
-        return text
+        # エラーを画面に出す（デバッグ用）
+        st.warning(f"翻訳失敗: {type(e).__name__} - {str(e)[:100]}")
+        return text  # 失敗したら原文
 
 def display_feed(url, limit=5):
     try:
