@@ -10,7 +10,7 @@ st.set_page_config(
 
 # タイトル
 st.title("🌐 World News")
-st.caption("世界の主要メディア・最新ニュース速報")
+st.caption("世界の主要メディア・最新ニュース速報（日本語表示版）")
 
 # RSS取得・表示関数
 def display_feed(url, limit=5):
@@ -36,9 +36,9 @@ display_feed(trump_rss, limit=7)
 st.divider()
 
 # ---------------------------------------------------------
-# 2. その下に続く 正確な海外21主要メディア一覧
+# 2. その下に続く 海外21主要メディア一覧（日本語表示）
 # ---------------------------------------------------------
-st.header("📰 海外主要メディア一覧（21媒体）")
+st.header("📰 海外主要メディア一覧（21媒体・日本語表示）")
 
 # PCでは左右2カラム、スマホでは縦に綺麗に1列に並びます
 col1, col2 = st.columns(2)
@@ -48,49 +48,50 @@ with col1:
     st.subheader("🇺🇸 欧米・国際主要紙（11媒体）")
     
     with st.expander("CNN News"):
-        display_feed("http://rss.cnn.com/rss/edition.rss")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:cnn.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The New York Times"):
-        display_feed("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:nytimes.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Washington Post"):
-        display_feed("https://feeds.washingtonpost.com/rss/national")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:washingtonpost.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("RT (Russia Today)"):
-        display_feed("https://www.rt.com/rss/news/")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:rt.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("Sputnik News"):
-        display_feed("https://sputnikglobe.com/export/rss2/archive/index.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:sputnikglobe.com+OR+site:sputniknews.jp&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("BBC News"):
-        display_feed("http://feeds.bbci.co.uk/news/rss.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:bbc.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Guardian (UK)"):
-        display_feed("https://www.theguardian.com/world/rss")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:theguardian.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("Reuters"):
-        display_feed("https://news.google.com/rss/search?q=when:24h+site:reuters.com&hl=en-US&gl=US&ceid=US:en")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:reuters.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Independent"):
-        display_feed("https://www.independent.co.uk/news/world/rss")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:independent.co.uk&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("Le Monde (France)"):
-        display_feed("https://www.lemonde.fr/rss/une.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:lemonde.fr&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("Al Jazeera"):
-        display_feed("https://www.aljazeera.com/xml/rss/all.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:aljazeera.com&hl=ja&gl=JP&ceid=JP:ja")
 
 # --- 右側グループ（10メディア） ---
 with col2:
     st.subheader("🌍 欧州・アジア・太平洋・防災（10媒体）")
     
     with st.expander("Deutsche Welle (Germany)"):
-        display_feed("https://rss.dw.com/rdf/rss-en-all")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:dw.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("China Daily"):
-        display_feed("http://www.chinadaily.com.cn/rss/world_rss.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:chinadaily.com.cn&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("South China Morning Post (SCMP)"):
-        display_feed("https://www.scmp.com/rss/91/feed")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:scmp.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Globe and Mail (Canada)"):
-        display_feed("https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/world/")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:theglobeandmail.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Sydney Morning Herald"):
-        display_feed("https://www.smh.com.au/rss/world.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:smh.com.au&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Times of India"):
-        display_feed("https://timesofindia.indiatimes.com/rssfeeds/296589292.cms")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:timesofindia.indiatimes.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("El País (Spain)"):
-        display_feed("https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:elpais.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Straits Times"):
-        display_feed("https://www.straitstimes.com/news/world/rss.xml")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:straitstimes.com&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Japan Times"):
-        display_feed("https://www.japantimes.co.jp/feed/")
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:japantimes.co.jp&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("USGS Earthquake Hazards"):
+        # 地震情報は英語原本が最も正確なためそのまま表示
         display_feed("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.atom")
