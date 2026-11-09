@@ -1,9 +1,8 @@
 import streamlit as st
 import feedparser
-from deep_translator import GoogleTranslator
-from functools import lru_cache  # キャッシュ用（任意）
+from deep_translator import MyMemoryTranslator, GoogleTranslator
+import time
 
-# ページ基本設定（そのまま）
 st.set_page_config(
     page_title="World News",
     page_icon="🌐",
@@ -13,60 +12,65 @@ st.set_page_config(
 st.title("🌐 World News")
 st.caption("世界の主要メディア・最新ニュース速報（本場現地版・日本語見出し表示）")
 
-# 翻訳をキャッシュして高速化（同じタイトルを何度も翻訳しない）
+# 翻訳関数（MyMemory優先＋キャッシュ）
 @st.cache_data(ttl=3600)
 def translate_to_japanese(text: str) -> str:
     try:
         if not text or text == "タイトルなし":
             return text
-        # 日本語判定は一旦外す
-        translated = GoogleTranslator(source='auto', target='ja').translate(text)
-        return translated
-    except Exception as e:
-        # エラーを画面に出す（デバッグ用）
-        st.warning(f"翻訳失敗: {type(e).__name__} - {str(e)[:100]}")
-        return text  # 失敗したら原文
+        # まずMyMemoryを試す（制限が比較的緩い）
+        return MyMemoryTranslator(source='auto', target='ja').translate(text)
+    except:
+        try:
+            time.sleep(0.4)  # 少し待ってからGoogleを試す
+            return GoogleTranslator(source='auto', target='ja').translate(text)
+        except:
+            return text  # 失敗したら原文を返す
 
-def display_feed(url, limit=5):
+def display_feed(url, limit=5, always_translate=False):
     try:
         feed = feedparser.parse(url)
-        if feed.entries:
-            for entry in feed.entries[:limit]:
-                original_title = entry.get('title', 'タイトルなし')
-                link = entry.get('link', '#')
-                
-                # ここで日本語に翻訳
-                japanese_title = translate_to_japanese(original_title)
-                
-                # 表示
-                st.markdown(f"・**{japanese_title}**")
-                st.markdown(f" ↳ [👉 英語の原文・記事を読む]({link})")
-                # 原文タイトルも小さく表示したい場合（任意）
-                # st.caption(f"原文: {original_title}")
-                st.write("")  # 余白
-        else:
+        if not feed.entries:
             st.info("ニュースを取得できませんでした。")
+            return
+
+        # 常に翻訳するかどうかの判定
+        if always_translate:
+            do_translate = True
+        else:
+            do_translate = st.checkbox("この見出しを日本語に翻訳する", key=f"trans_{url}")
+
+        for entry in feed.entries[:limit]:
+            original_title = entry.get('title', 'タイトルなし')
+            link = entry.get('link', '#')
+
+            if do_translate:
+                title = translate_to_japanese(original_title)
+            else:
+                title = original_title
+
+            st.markdown(f"・**{title}**")
+            st.markdown(f" ↳ [👉 原文を読む]({link})")
+            st.write("")
     except Exception as e:
         st.error(f"読み込みエラー: {e}")
 
 # ---------------------------------------------------------
-# 1. スマホ表示の一番上：トランプ速報（本場）
+# 1. トランプ速報（常に日本語）
 # ---------------------------------------------------------
 st.header("🔥 トランプ速報・最新注目ニュース")
 trump_rss = "https://news.google.com/rss/search?q=Trump+when:24h&hl=ja&gl=US&ceid=US:en"
-display_feed(trump_rss, limit=7)
+display_feed(trump_rss, limit=7, always_translate=True)  # ← ここだけTrue
 
 st.divider()
 
 # ---------------------------------------------------------
-# 2. その下に続く 海外21主要メディア一覧
+# 2. 海外主要メディア一覧（デフォルト英語・必要時だけ翻訳）
 # ---------------------------------------------------------
 st.header("📰 海外主要メディア一覧（本場現地版・21媒体）")
 
-# PCでは左右2カラム、スマホでは縦に綺麗に1列に並びます
 col1, col2 = st.columns(2)
 
-# --- 左側グループ（11メディア） ---
 with col1:
     st.subheader("🇺🇸 欧米・国際主要紙（11媒体）")
     
@@ -93,7 +97,6 @@ with col1:
     with st.expander("Al Jazeera"):
         display_feed("https://news.google.com/rss/search?q=site:aljazeera.com+when:24h&hl=ja&gl=QA&ceid=QA:en")
 
-# --- 右側グループ（10メディア） ---
 with col2:
     st.subheader("🌍 欧州・アジア・太平洋・防災（10媒体）")
     
