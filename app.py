@@ -16,15 +16,17 @@ st.caption("世界の主要メディア・最新ニュース速報（本場現�
 # 翻訳関数（Streamlitのキャッシュを使って高速化）
 @st.cache_data(ttl=1800) # 30分間キャッシュ
 def translate_text(text):
+    if not text:
+        return text
     try:
-        if not text:
-            return text
+        # 英語・各国語から日本語へ自動翻訳
         translated = GoogleTranslator(source='auto', target='ja').translate(text)
         return translated if translated else text
-    except Exception:
-        return text
+    except Exception as e:
+        # 万が一翻訳でエラーが起きた場合は原文の後ろにエラー表記を出して確認可能にする
+        return f"{text} (※翻訳不可)"
 
-# RSS取得・表示関数（タイトルとリンクを分離して確実な日本語表示に）
+# RSS取得・表示関数（タイトルとリンクを分離）
 def display_feed(url, limit=5):
     try:
         feed = feedparser.parse(url)
@@ -36,10 +38,10 @@ def display_feed(url, limit=5):
                 # 見出しを日本語に翻訳
                 translated_title = translate_text(original_title)
                 
-                # 見出しをテキストとして表示し、すぐ下に「[記事を読む]」リンクを配置
-                st.markdown(f"・{translated_title}")
+                # 見出しを表示し、下に元記事リンクを配置
+                st.markdown(f"・**{translated_title}**")
                 st.markdown(f" ↳ [👉 英語の原文・記事を読む]({link})")
-                st.write("") # 少し余白を開ける
+                st.write("") # 余白
         else:
             st.info("ニュースを取得できませんでした。")
     except Exception as e:
