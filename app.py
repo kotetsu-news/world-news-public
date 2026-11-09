@@ -1,30 +1,49 @@
 import streamlit as st
 import feedparser
+from deep_translator import GoogleTranslator
+from functools import lru_cache  # キャッシュ用（任意）
 
-# ページ基本設定（スマホ・PC両対応）
+# ページ基本設定（そのまま）
 st.set_page_config(
     page_title="World News",
     page_icon="🌐",
     layout="wide"
 )
 
-# タイトル
 st.title("🌐 World News")
 st.caption("世界の主要メディア・最新ニュース速報（本場現地版・日本語見出し表示）")
 
-# RSS取得・表示関数（Google News方式で確実に日本語タイトルを取得）
+# 翻訳をキャッシュして高速化（同じタイトルを何度も翻訳しない）
+@st.cache_data(ttl=3600)  # 1時間キャッシュ
+def translate_to_japanese(text: str) -> str:
+    try:
+        if not text or text == "タイトルなし":
+            return text
+        # すでに日本語っぽい場合は翻訳しない（簡易判定）
+        if any(ord(c) > 0x3000 for c in text):  # 日本語文字が含まれていればそのまま
+            return text
+        return GoogleTranslator(source='auto', target='ja').translate(text)
+    except Exception as e:
+        # 翻訳失敗時は原文を返す
+        return text
+
 def display_feed(url, limit=5):
     try:
         feed = feedparser.parse(url)
         if feed.entries:
             for entry in feed.entries[:limit]:
-                title = entry.get('title', 'タイトルなし')
+                original_title = entry.get('title', 'タイトルなし')
                 link = entry.get('link', '#')
                 
-                # 日本語見出しと原文リンクを綺麗に分離して表示
-                st.markdown(f"・**{title}**")
+                # ここで日本語に翻訳
+                japanese_title = translate_to_japanese(original_title)
+                
+                # 表示
+                st.markdown(f"・**{japanese_title}**")
                 st.markdown(f" ↳ [👉 英語の原文・記事を読む]({link})")
-                st.write("") # 余白
+                # 原文タイトルも小さく表示したい場合（任意）
+                # st.caption(f"原文: {original_title}")
+                st.write("")  # 余白
         else:
             st.info("ニュースを取得できませんでした。")
     except Exception as e:
