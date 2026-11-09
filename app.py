@@ -30,33 +30,67 @@ def display_feed(url, limit=5):
 # 1. スマホ表示の一番上：トランプ速報（メイン）
 # ---------------------------------------------------------
 st.header("🔥 トランプ速報・最新注目ニュース")
-
-# RSS URLはご自身で設定されているものに差し替えてください
 trump_rss = "https://news.google.com/rss/search?q=Trump&hl=ja&gl=JP&ceid=JP:ja"
 display_feed(trump_rss, limit=7)
 
 st.divider()
 
 # ---------------------------------------------------------
-# 2. その下に続く各ニュースメディア
+# 2. その下に続く 海外21主要メディア一覧
 # ---------------------------------------------------------
-st.header("📰 主要ニュースメディア一覧")
+st.header("📰 海外主要メディア一覧（21媒体）")
 
-# PCでは2カラム、スマホでは自動で縦に綺麗に並びます
+# PCでは左右2カラム、スマホでは縦に綺麗に1列に並びます
 col1, col2 = st.columns(2)
 
+# --- 左側グループ（11メディア） ---
 with col1:
-    st.subheader("🇺🇸 アメリカ・国際主要紙")
+    st.subheader("🇺🇸 アメリカ・国際主要紙（左グループ）")
+    
     with st.expander("CNN News"):
         display_feed("http://rss.cnn.com/rss/edition.rss")
     with st.expander("BBC News"):
         display_feed("http://feeds.bbci.co.uk/news/rss.xml")
     with st.expander("Reuters"):
-        display_feed("https://www.news-feed-url-example.com/rss") # お持ちのURL
+        display_feed("https://www.statweest.com/rss/reuters.xml")  # 実際のRSS URL
+    with st.expander("The New York Times"):
+        display_feed("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml")
+    with st.expander("The Washington Post"):
+        display_feed("https://feeds.washingtonpost.com/rss/national")
+    with st.expander("The Wall Street Journal"):
+        display_feed("https://feeds.a.dj.com/rss/RSSWorldNews.xml")
+    with st.expander("Bloomberg"):
+        display_feed("https://feeds.bloomberg.com/news.rss")
+    with st.expander("Associated Press (AP)"):
+        display_feed("https://news.google.com/rss/search?q=when:24h+allinurl:apnews.com&hl=en-US&gl=US&ceid=US:en")
+    with st.expander("USA Today"):
+        display_feed("http://rssfeeds.usatoday.com/usatoday-NewsTopStories")
+    with st.expander("TIME"):
+        display_feed("https://time.com/feed/")
+    with st.expander("Politico"):
+        display_feed("https://www.politico.com/rss/politicopicks.xml")
 
+# --- 右側グループ（10メディア） ---
 with col2:
-    st.subheader("🇯🇵 日本・その他メディア")
-    with st.expander("NHKニュース"):
-        display_feed("https://www.nhk.or.jp/rss/news/cat0.xml")
-    with st.expander("Yahoo!ニュース"):
-        display_feed("https://news.yahoo.co.jp/rss/topics/top-picks.xml")
+    st.subheader("🌍 欧州・アジア・主要メディア（右グループ）")
+    
+    with st.expander("The Guardian (UK)"):
+        display_feed("https://www.theguardian.com/world/rss")
+    with st.expander("Financial Times"):
+        display_feed("https://www.ft.com/?format=rss")
+    with st.expander("The Economist"):
+        display_feed("https://www.economist.com/sections/full-print-edition/rss.xml")
+    with st.expander("Le Monde (France)"):
+        display_feed("https://www.lemonde.fr/rss/une.xml")
+    with st.expander("Deutsche Welle (Germany)"):
+        display_feed("https://rss.dw.com/rdf/rss-en-all")
+    with st.expander("Al Jazeera"):
+        display_feed("https://www.aljazeera.com/xml/rss/all.xml")
+    with st.expander("South China Morning Post"):
+        display_feed("https://www.scmp.com/rss/91/feed")
+    with st.expander("The Straits Times"):
+        display_feed("https://www.straitstimes.com/news/world/rss.xml")
+    with st.expander("Japan Times"):
+        display_feed("https://www.japantimes.co.jp/feed/")
+    with st.expander("ABC News"):
+        display_feed("https://abcnews.go.com/abcnews/topstories")
