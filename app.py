@@ -36,7 +36,7 @@ display_feed(trump_rss, limit=7)
 st.divider()
 
 # ---------------------------------------------------------
-# 2. その下に続く 海外21主要メディア一覧
+# 2. その下に続く 正確な海外21主要メディア一覧
 # ---------------------------------------------------------
 st.header("📰 海外主要メディア一覧（21媒体）")
 
@@ -45,52 +45,52 @@ col1, col2 = st.columns(2)
 
 # --- 左側グループ（11メディア） ---
 with col1:
-    st.subheader("🇺🇸 アメリカ・国際主要紙（左グループ）")
+    st.subheader("🇺🇸 欧米・国際主要紙（11媒体）")
     
     with st.expander("CNN News"):
         display_feed("http://rss.cnn.com/rss/edition.rss")
-    with st.expander("BBC News"):
-        display_feed("http://feeds.bbci.co.uk/news/rss.xml")
-    with st.expander("Reuters"):
-        display_feed("https://www.statweest.com/rss/reuters.xml")
     with st.expander("The New York Times"):
         display_feed("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml")
     with st.expander("The Washington Post"):
         display_feed("https://feeds.washingtonpost.com/rss/national")
-    with st.expander("The Wall Street Journal"):
-        display_feed("https://feeds.a.dj.com/rss/RSSWorldNews.xml")
-    with st.expander("Bloomberg"):
-        display_feed("https://feeds.bloomberg.com/news.rss")
-    with st.expander("Associated Press (AP)"):
-        display_feed("https://news.google.com/rss/search?q=when:24h+allinurl:apnews.com&hl=en-US&gl=US&ceid=US:en")
-    with st.expander("USA Today"):
-        display_feed("http://rssfeeds.usatoday.com/usatoday-NewsTopStories")
-    with st.expander("TIME"):
-        display_feed("https://time.com/feed/")
-    with st.expander("Politico"):
-        display_feed("https://www.politico.com/rss/politicopicks.xml")
+    with st.expander("RT (Russia Today)"):
+        display_feed("https://www.rt.com/rss/news/")
+    with st.expander("Sputnik News"):
+        display_feed("https://sputnikglobe.com/export/rss2/archive/index.xml")
+    with st.expander("BBC News"):
+        display_feed("http://feeds.bbci.co.uk/news/rss.xml")
+    with st.expander("The Guardian (UK)"):
+        display_feed("https://www.theguardian.com/world/rss")
+    with st.expander("Reuters"):
+        display_feed("https://news.google.com/rss/search?q=when:24h+site:reuters.com&hl=en-US&gl=US&ceid=US:en")
+    with st.expander("The Independent"):
+        display_feed("https://www.independent.co.uk/news/world/rss")
+    with st.expander("Le Monde (France)"):
+        display_feed("https://www.lemonde.fr/rss/une.xml")
+    with st.expander("Al Jazeera"):
+        display_feed("https://www.aljazeera.com/xml/rss/all.xml")
 
 # --- 右側グループ（10メディア） ---
 with col2:
-    st.subheader("🌍 欧州・アジア・主要メディア（右グループ）")
+    st.subheader("🌍 欧州・アジア・太平洋・防災（10媒体）")
     
-    with st.expander("The Guardian (UK)"):
-        display_feed("https://www.theguardian.com/world/rss")
-    with st.expander("Financial Times"):
-        display_feed("https://www.ft.com/?format=rss")
-    with st.expander("The Economist"):
-        display_feed("https://www.economist.com/sections/full-print-edition/rss.xml")
-    with st.expander("Le Monde (France)"):
-        display_feed("https://www.lemonde.fr/rss/une.xml")
     with st.expander("Deutsche Welle (Germany)"):
         display_feed("https://rss.dw.com/rdf/rss-en-all")
-    with st.expander("Al Jazeera"):
-        display_feed("https://www.aljazeera.com/xml/rss/all.xml")
-    with st.expander("South China Morning Post"):
+    with st.expander("China Daily"):
+        display_feed("http://www.chinadaily.com.cn/rss/world_rss.xml")
+    with st.expander("South China Morning Post (SCMP)"):
         display_feed("https://www.scmp.com/rss/91/feed")
+    with st.expander("The Globe and Mail (Canada)"):
+        display_feed("https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/world/")
+    with st.expander("The Sydney Morning Herald"):
+        display_feed("https://www.smh.com.au/rss/world.xml")
+    with st.expander("The Times of India"):
+        display_feed("https://timesofindia.indiatimes.com/rssfeeds/296589292.cms")
+    with st.expander("El País (Spain)"):
+        display_feed("https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada")
     with st.expander("The Straits Times"):
         display_feed("https://www.straitstimes.com/news/world/rss.xml")
-    with st.expander("Japan Times"):
+    with st.expander("The Japan Times"):
         display_feed("https://www.japantimes.co.jp/feed/")
-    with st.expander("ABC News"):
-        display_feed("https://abcnews.go.com/abcnews/topstories")
+    with st.expander("USGS Earthquake Hazards"):
+        display_feed("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.atom")
