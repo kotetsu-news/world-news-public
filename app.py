@@ -10,9 +10,9 @@ st.set_page_config(
 
 # タイトル
 st.title("🌐 World News")
-st.caption("世界の主要メディア・最新ニュース速報（本場現地版・日本語見出し表示）")
+st.caption("世界の主要メディア・最新ニュース速報（日本語見出し・快適閲覧版）")
 
-# RSS取得・表示関数（Google News方式で確実に日本語タイトルを取得）
+# RSS取得・表示関数（Google News方式で綺麗に日本語表示＆リンク分離）
 def display_feed(url, limit=5):
     try:
         feed = feedparser.parse(url)
@@ -21,9 +21,9 @@ def display_feed(url, limit=5):
                 title = entry.get('title', 'タイトルなし')
                 link = entry.get('link', '#')
                 
-                # 日本語見出しと原文リンクを綺麗に分離して表示
+                # 日本語の見出しを表示し、下に元記事リンクを配置
                 st.markdown(f"・**{title}**")
-                st.markdown(f" ↳ [👉 英語の原文・記事を読む]({link})")
+                st.markdown(f" ↳ [👉 記事の詳細・原文を読む]({link})")
                 st.write("") # 余白
         else:
             st.info("ニュースを取得できませんでした。")
@@ -31,7 +31,7 @@ def display_feed(url, limit=5):
         st.error(f"読み込みエラー: {e}")
 
 # ---------------------------------------------------------
-# 1. スマホ表示の一番上：トランプ速報（本場）
+# 1. スマホ表示の一番上：トランプ速報（メイン）
 # ---------------------------------------------------------
 st.header("🔥 トランプ速報・最新注目ニュース")
 trump_rss = "https://news.google.com/rss/search?q=Trump+when:24h&hl=ja&gl=US&ceid=US:en"
@@ -42,7 +42,7 @@ st.divider()
 # ---------------------------------------------------------
 # 2. その下に続く 海外21主要メディア一覧
 # ---------------------------------------------------------
-st.header("📰 海外主要メディア一覧（本場現地版・21媒体）")
+st.header("📰 海外主要メディア一覧（21媒体・日本語見出し）")
 
 # PCでは左右2カラム、スマホでは縦に綺麗に1列に並びます
 col1, col2 = st.columns(2)
