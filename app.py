@@ -1,6 +1,5 @@
 import streamlit as st
 import feedparser
-from deep_translator import GoogleTranslator
 
 # ページ基本設定（スマホ・PC両対応）
 st.set_page_config(
@@ -11,35 +10,19 @@ st.set_page_config(
 
 # タイトル
 st.title("🌐 World News")
-st.caption("世界の主要メディア・最新ニュース速報（本場現地版・日本語見出し化）")
+st.caption("世界の主要メディア・最新ニュース速報（本場現地版・日本語見出し表示）")
 
-# 翻訳関数（Streamlitのキャッシュを使って高速化）
-@st.cache_data(ttl=1800) # 30分間キャッシュ
-def translate_text(text):
-    if not text:
-        return text
-    try:
-        # 英語・各国語から日本語へ自動翻訳
-        translated = GoogleTranslator(source='auto', target='ja').translate(text)
-        return translated if translated else text
-    except Exception as e:
-        # 万が一翻訳でエラーが起きた場合は原文の後ろにエラー表記を出して確認可能にする
-        return f"{text} (※翻訳不可)"
-
-# RSS取得・表示関数（タイトルとリンクを分離）
+# RSS取得・表示関数（Google News方式で確実に日本語タイトルを取得）
 def display_feed(url, limit=5):
     try:
         feed = feedparser.parse(url)
         if feed.entries:
             for entry in feed.entries[:limit]:
-                original_title = entry.get('title', 'タイトルなし')
+                title = entry.get('title', 'タイトルなし')
                 link = entry.get('link', '#')
                 
-                # 見出しを日本語に翻訳
-                translated_title = translate_text(original_title)
-                
-                # 見出しを表示し、下に元記事リンクを配置
-                st.markdown(f"・**{translated_title}**")
+                # 日本語見出しと原文リンクを綺麗に分離して表示
+                st.markdown(f"・**{title}**")
                 st.markdown(f" ↳ [👉 英語の原文・記事を読む]({link})")
                 st.write("") # 余白
         else:
@@ -51,7 +34,7 @@ def display_feed(url, limit=5):
 # 1. スマホ表示の一番上：トランプ速報（本場）
 # ---------------------------------------------------------
 st.header("🔥 トランプ速報・最新注目ニュース")
-trump_rss = "https://news.google.com/rss/search?q=Trump&hl=en-US&gl=US&ceid=US:en"
+trump_rss = "https://news.google.com/rss/search?q=Trump+when:24h&hl=ja&gl=US&ceid=US:en"
 display_feed(trump_rss, limit=7)
 
 st.divider()
@@ -69,49 +52,49 @@ with col1:
     st.subheader("🇺🇸 欧米・国際主要紙（11媒体）")
     
     with st.expander("CNN News"):
-        display_feed("http://rss.cnn.com/rss/edition.rss")
+        display_feed("https://news.google.com/rss/search?q=site:cnn.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("The New York Times"):
-        display_feed("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml")
+        display_feed("https://news.google.com/rss/search?q=site:nytimes.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("The Washington Post"):
-        display_feed("https://feeds.washingtonpost.com/rss/national")
+        display_feed("https://news.google.com/rss/search?q=site:washingtonpost.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("RT (Russia Today)"):
-        display_feed("https://www.rt.com/rss/news/")
+        display_feed("https://news.google.com/rss/search?q=site:rt.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("Sputnik News"):
-        display_feed("https://sputnikglobe.com/export/rss2/archive/index.xml")
+        display_feed("https://news.google.com/rss/search?q=site:sputnikglobe.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("BBC News"):
-        display_feed("http://feeds.bbci.co.uk/news/rss.xml")
+        display_feed("https://news.google.com/rss/search?q=site:bbc.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("The Guardian (UK)"):
-        display_feed("https://www.theguardian.com/world/rss")
+        display_feed("https://news.google.com/rss/search?q=site:theguardian.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("Reuters"):
-        display_feed("https://news.google.com/rss/search?q=when:24h+site:reuters.com&hl=en-US&gl=US&ceid=US:en")
+        display_feed("https://news.google.com/rss/search?q=site:reuters.com+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("The Independent"):
-        display_feed("https://www.independent.co.uk/news/world/rss")
+        display_feed("https://news.google.com/rss/search?q=site:independent.co.uk+when:24h&hl=ja&gl=US&ceid=US:en")
     with st.expander("Le Monde (France)"):
-        display_feed("https://www.lemonde.fr/rss/une.xml")
+        display_feed("https://news.google.com/rss/search?q=site:lemonde.fr+when:24h&hl=ja&gl=FR&ceid=FR:fr")
     with st.expander("Al Jazeera"):
-        display_feed("https://www.aljazeera.com/xml/rss/all.xml")
+        display_feed("https://news.google.com/rss/search?q=site:aljazeera.com+when:24h&hl=ja&gl=QA&ceid=QA:en")
 
 # --- 右側グループ（10メディア） ---
 with col2:
     st.subheader("🌍 欧州・アジア・太平洋・防災（10媒体）")
     
     with st.expander("Deutsche Welle (Germany)"):
-        display_feed("https://rss.dw.com/rdf/rss-en-all")
+        display_feed("https://news.google.com/rss/search?q=site:dw.com+when:24h&hl=ja&gl=DE&ceid=DE:de")
     with st.expander("China Daily"):
-        display_feed("http://www.chinadaily.com.cn/rss/world_rss.xml")
+        display_feed("https://news.google.com/rss/search?q=site:chinadaily.com.cn+when:24h&hl=ja&gl=CN&ceid=CN:zh")
     with st.expander("South China Morning Post (SCMP)"):
-        display_feed("https://www.scmp.com/rss/91/feed")
+        display_feed("https://news.google.com/rss/search?q=site:scmp.com+when:24h&hl=ja&gl=HK&ceid=HK:en")
     with st.expander("The Globe and Mail (Canada)"):
-        display_feed("https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/world/")
+        display_feed("https://news.google.com/rss/search?q=site:theglobeandmail.com+when:24h&hl=ja&gl=CA&ceid=CA:en")
     with st.expander("The Sydney Morning Herald"):
-        display_feed("https://www.smh.com.au/rss/world.xml")
+        display_feed("https://news.google.com/rss/search?q=site:smh.com.au+when:24h&hl=ja&gl=AU&ceid=AU:en")
     with st.expander("The Times of India"):
-        display_feed("https://timesofindia.indiatimes.com/rssfeeds/296589292.cms")
+        display_feed("https://news.google.com/rss/search?q=site:timesofindia.indiatimes.com+when:24h&hl=ja&gl=IN&ceid=IN:en")
     with st.expander("El País (Spain)"):
-        display_feed("https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada")
+        display_feed("https://news.google.com/rss/search?q=site:elpais.com+when:24h&hl=ja&gl=ES&ceid=ES:es")
     with st.expander("The Straits Times"):
-        display_feed("https://www.straitstimes.com/news/world/rss.xml")
+        display_feed("https://news.google.com/rss/search?q=site:straitstimes.com+when:24h&hl=ja&gl=SG&ceid=SG:en")
     with st.expander("The Japan Times"):
-        display_feed("https://www.japantimes.co.jp/feed/")
+        display_feed("https://news.google.com/rss/search?q=site:japantimes.co.jp+when:24h&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("USGS Earthquake Hazards"):
         display_feed("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.atom")
