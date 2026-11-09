@@ -52,7 +52,7 @@ with col1:
     with st.expander("BBC News"):
         display_feed("http://feeds.bbci.co.uk/news/rss.xml")
     with st.expander("Reuters"):
-        display_feed("https://www.statweest.com/rss/reuters.xml")  # 実際のRSS URL
+        display_feed("https://www.statweest.com/rss/reuters.xml")
     with st.expander("The New York Times"):
         display_feed("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml")
     with st.expander("The Washington Post"):
