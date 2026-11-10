@@ -37,7 +37,6 @@ app_mode = st.sidebar.radio(
 # ページ 1: メインニュース速報
 # =========================================================
 if app_mode == "🌐 World News (メイン速報)":
-    # タイトル（「日本語見出し・快適閲覧版」は削除）
     st.title("🌐 World News")
     st.caption("世界の主要メディア・最新ニュース速報")
 
@@ -48,8 +47,8 @@ if app_mode == "🌐 World News (メイン速報)":
 
     st.divider()
 
-    # 2. 海外21主要メディア一覧（1カラムで縦一列に配置）
-    st.header("📰 海外主要メディア一覧（21媒体）🌍")
+    # 2. 海外21主要メディア一覧（見出し位置・絵文字を調整）
+    st.header("🌍 海外主要メディア一覧（21媒体）")
 
     with st.expander("CNN News (アメリカ)"):
         display_feed("https://news.google.com/rss/search?q=CNN&hl=ja&gl=JP&ceid=JP:ja")
