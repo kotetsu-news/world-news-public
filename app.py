@@ -10,6 +10,43 @@ st.set_page_config(
     layout="wide"
 )
 
+# ---------------------------------------------------------
+# メニュー定義（スマホでスッキリ見える1行表記）
+# ---------------------------------------------------------
+MENU_NEWS = "🌐 World News 速報"
+MENU_FUJIWARA = "🎙️ 藤原直哉さんの視点"
+MENU_TRUMP = "🏛️ トランプ大統領令 Top5"
+MENU_MEDIA = "🧭 メディアの立場・特徴マップ"
+MENU_DICT = "📖 重要キーワード＆地政学辞典"
+MENU_MARKET = "📈 世界経済・指標ガイド"
+MENU_EMERGENCY = "🚨 緊急時・一次情報リンク集"
+
+MENU_LIST = [
+    MENU_NEWS,
+    MENU_FUJIWARA,
+    MENU_TRUMP,
+    MENU_MEDIA,
+    MENU_DICT,
+    MENU_MARKET,
+    MENU_EMERGENCY
+]
+
+# セッション状態で現在のページを管理（ボタンからトップへ戻せるようにする）
+if "nav_radio" not in st.session_state:
+    st.session_state["nav_radio"] = MENU_NEWS
+
+def go_home():
+    st.session_state["nav_radio"] = MENU_NEWS
+
+# トップへ戻るボタン表示用関数
+def render_back_button(key_suffix):
+    st.button(
+        "🏠 World News 速報（トップ）へ戻る",
+        on_click=go_home,
+        key=f"back_btn_{key_suffix}",
+        use_container_width=True
+    )
+
 # RSS取得・表示関数
 def display_feed(url, limit=5):
     try:
@@ -25,29 +62,13 @@ def display_feed(url, limit=5):
         st.error(f"読み込みエラー: {e}")
 
 # ---------------------------------------------------------
-# サイドバーによる画面切り替え（スマホ最適化・全7ページ完全版）
+# サイドバーによる画面切り替え
 # ---------------------------------------------------------
 st.sidebar.title("📌 Navigation")
-
-MENU_NEWS = "🌐 World News 速報"
-MENU_FUJIWARA = "🎙️ 藤原直哉さんの視点\n  (日本と世界に一言)"
-MENU_TRUMP = "🏛️ トランプ大統領令\n  インパクトTop5"
-MENU_MEDIA = "🧭 海外主要メディアの\n  立場・特徴マップ"
-MENU_DICT = "📖 ニュース重要用語\n  ＆地政学辞典"
-MENU_MARKET = "📈 世界経済・マーケット\n  指標ガイド＆リンク"
-MENU_EMERGENCY = "🚨 緊急時・世界の公式\n  一次情報リンク集"
-
 app_mode = st.sidebar.radio(
     "表示するページを選択",
-    [
-        MENU_NEWS,
-        MENU_FUJIWARA,
-        MENU_TRUMP,
-        MENU_MEDIA,
-        MENU_DICT,
-        MENU_MARKET,
-        MENU_EMERGENCY
-    ]
+    MENU_LIST,
+    key="nav_radio"
 )
 
 # =========================================================
@@ -114,6 +135,7 @@ if app_mode == MENU_NEWS:
 # ページ 2: 藤原直哉さんの視点
 # =========================================================
 elif app_mode == MENU_FUJIWARA:
+    render_back_button("fujiwara_top")
     st.title("🎙️ 藤原直哉さんの視点")
     st.caption("表のニュースと別の視点を並べて、あなた自身の考えを深めるための特設コーナー")
 
@@ -139,10 +161,14 @@ elif app_mode == MENU_FUJIWARA:
     * **長期的なトレンド把握：** 単発の出来事だけでなく、数ヶ月〜数年単位での大きな時代の流れを捉えるヒントになります。
     """)
 
+    st.divider()
+    render_back_button("fujiwara_bottom")
+
 # =========================================================
 # ページ 3: 特設・トランプ大統領令アーカイブ
 # =========================================================
 elif app_mode == MENU_TRUMP:
+    render_back_button("trump_top")
     st.title("🏛️ 世界を揺るがしたトランプ大統領令 Top 5")
     st.caption("第1次・第2次政権において、世界情勢や経済・社会に絶大なインパクトを与えた重要署名の要約アーカイブ")
 
@@ -222,10 +248,14 @@ elif app_mode == MENU_TRUMP:
         * **ポイント:** トランプ氏自身の投稿検閲を巡りBig Tech（巨大IT企業）との直接対決姿勢を強めた、ネット言論の歴史的ターニングポイント。
         """)
 
+    st.divider()
+    render_back_button("trump_bottom")
+
 # =========================================================
 # ページ 4: 海外主要メディアの立場・特徴マップ
 # =========================================================
 elif app_mode == MENU_MEDIA:
+    render_back_button("media_top")
     st.title("🧭 海外主要メディアの立場・特徴マップ")
     st.caption("海外ニュースを読み解くための基本ガイド（各メディアの立ち位置・特徴まとめ）")
 
@@ -321,10 +351,14 @@ elif app_mode == MENU_MEDIA:
           * **特徴:** アメリカ政府の科学機関による世界中のリアルタイム地震速報（M2.5以上）。メディアの推測を挟まない純粋な一次観測データ。
         """)
 
+    st.divider()
+    render_back_button("media_bottom")
+
 # =========================================================
 # ページ 5: 海外ニュース重要キーワード＆地政学用語辞典
 # =========================================================
 elif app_mode == MENU_DICT:
+    render_back_button("dict_top")
     st.title("📖 海外ニュース重要キーワード＆地政学用語辞典")
     st.caption("海外メディアの見出しや記事で頻出する国際政治・経済・安全保障の重要ワード解説")
 
@@ -379,10 +413,14 @@ elif app_mode == MENU_DICT:
           * **意味:** 戦後の国際経済を支える2大機関。**IMF（国際通貨基金）**は通貨危機に陥った国への緊急融資と経済指導を行い、**世界銀行**は途上国のインフラ開発などの長期的な資金支援を行う。
         """)
 
+    st.divider()
+    render_back_button("dict_bottom")
+
 # =========================================================
 # ページ 6: 世界経済・マーケット指標ガイド＆リンク集
 # =========================================================
 elif app_mode == MENU_MARKET:
+    render_back_button("market_top")
     st.title("📈 世界経済・マーケット指標ガイド＆リンク集")
     st.caption("国際ニュースと直結する『お金と資源の動き』の読み方＆リアルタイム確認リンク")
 
@@ -417,10 +455,14 @@ elif app_mode == MENU_MARKET:
       * 世界の機関投資家が注目する最新の金融指標・債券・商品（コモディティ）市況の一覧。
     """)
 
+    st.divider()
+    render_back_button("market_bottom")
+
 # =========================================================
 # ページ 7: 緊急時・世界の公式一次情報リンク集
 # =========================================================
 elif app_mode == MENU_EMERGENCY:
+    render_back_button("emergency_top")
     st.title("🚨 緊急時・世界の公式一次情報リンク集")
     st.caption("災害・国際危機・感染症などの発生時に、デマや憶測を避けて『公式発表』を直接確認するためのブックマーク")
 
@@ -451,3 +493,6 @@ elif app_mode == MENU_EMERGENCY:
     * **[The White House（アメリカ大統領府）](https://www.whitehouse.gov/)**
       * 米国大統領の公式声明、署名された大統領令（Executive Orders）の原文アーカイブ。
     """)
+
+    st.divider()
+    render_back_button("emergency_bottom")
