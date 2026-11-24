@@ -1,5 +1,6 @@
 import streamlit as st
 import feedparser
+import urllib.request
 
 # ---------------------------------------------------------
 # ページ基本設定
@@ -47,15 +48,51 @@ def render_back_button(key_suffix):
         use_container_width=True
     )
 
-# RSS取得・表示関数
-def display_feed(url, limit=5):
+def parse_feed_with_fallback(url):
+    """通常のfeedparserに加え、必要に応じてUser-Agent付き取得も試す"""
+    feed = feedparser.parse(url)
+    if getattr(feed, "entries", None):
+        return feed
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    }
     try:
-        feed = feedparser.parse(url)
-        if feed.entries:
-            for entry in feed.entries[:limit]:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            raw_xml = resp.read()
+        feed_ua = feedparser.parse(raw_xml)
+        if getattr(feed_ua, "entries", None):
+            return feed_ua
+    except Exception:
+        pass
+
+    return feed
+
+# RSS取得・表示関数（必ず新しいタブで開くリンク＋予備フィード対応）
+def display_feed(url, limit=5, fallback_url=None):
+    try:
+        feed = parse_feed_with_fallback(url)
+        entries = getattr(feed, "entries", [])
+
+        if not entries and fallback_url:
+            feed = parse_feed_with_fallback(fallback_url)
+            entries = getattr(feed, "entries", [])
+
+        if entries:
+            items_html = []
+            for entry in entries[:limit]:
                 title = entry.get('title', 'タイトルなし')
                 link = entry.get('link', '#')
-                st.markdown(f"- [{title}]({link})")
+                items_html.append(
+                    f'<li style="margin-bottom: 6px;">'
+                    f'<a href="{link}" target="_blank" rel="noopener noreferrer">{title}</a>'
+                    f'</li>'
+                )
+            st.markdown(
+                f'<ul style="margin-top: 4px; margin-bottom: 8px; padding-left: 20px;">{"".join(items_html)}</ul>',
+                unsafe_allow_html=True
+            )
         else:
             st.info("ニュースを取得できませんでした。")
     except Exception as e:
@@ -97,7 +134,10 @@ if app_mode == MENU_NEWS:
     with st.expander("RT (Russia Today) (ロシア)"):
         display_feed("https://news.google.com/rss/search?q=RT+OR+%22%E3%83%AD%E3%82%B7%E3%82%A2%E3%83%88%E3%82%A5%E3%83%87%E3%82%A4%22&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("Sputnik News (ロシア)"):
-        display_feed("https://news.web.sputniknews.jp/rss/sputnik.xml")
+        display_feed(
+            "https://news.web.sputniknews.jp/rss/sputnik.xml",
+            fallback_url="https://news.google.com/rss/search?q=Sputnik+OR+%E3%82%B9%E3%83%97%E3%83%BC%E3%83%88%E3%83%8B%E3%82%AF&hl=ja&gl=JP&ceid=JP:ja"
+        )
     with st.expander("BBC News (イギリス)"):
         display_feed("https://news.google.com/rss/search?q=BBC&hl=ja&gl=JP&ceid=JP:ja")
     with st.expander("The Guardian (イギリス)"):
