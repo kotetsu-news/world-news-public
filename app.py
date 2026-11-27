@@ -1,6 +1,7 @@
-import streamlit as st
-import feedparser
+import html
 import urllib.request
+import feedparser
+import streamlit as st
 
 # ---------------------------------------------------------
 # ページ基本設定
@@ -36,8 +37,10 @@ MENU_LIST = [
 if "nav_radio" not in st.session_state:
     st.session_state["nav_radio"] = MENU_NEWS
 
+
 def go_home():
     st.session_state["nav_radio"] = MENU_NEWS
+
 
 # トップへ戻るボタン表示用関数
 def render_back_button(key_suffix):
@@ -48,45 +51,57 @@ def render_back_button(key_suffix):
         use_container_width=True
     )
 
-def parse_feed_with_fallback(url):
-    """通常のfeedparserに加え、必要に応じてUser-Agent付き取得も試す"""
-    feed = feedparser.parse(url)
-    if getattr(feed, "entries", None):
-        return feed
 
+@st.cache_data(ttl=600, show_spinner=False)
+def fetch_feed_entries(url, limit=5, fallback_url=None):
+    """RSSを取得してエントリー一覧を返す（10分キャッシュでスリープ復帰後の表示を安定化）"""
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        )
     }
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            raw_xml = resp.read()
-        feed_ua = feedparser.parse(raw_xml)
-        if getattr(feed_ua, "entries", None):
-            return feed_ua
-    except Exception:
-        pass
 
-    return feed
+    def _parse(target_url):
+        feed = feedparser.parse(target_url)
+        if getattr(feed, "entries", None):
+            return feed.entries
+        try:
+            req = urllib.request.Request(target_url, headers=headers)
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                raw_xml = resp.read()
+            feed_ua = feedparser.parse(raw_xml)
+            if getattr(feed_ua, "entries", None):
+                return feed_ua.entries
+        except Exception:
+            pass
+        return []
+
+    entries = _parse(url)
+    if not entries and fallback_url:
+        entries = _parse(fallback_url)
+
+    simplified = []
+    for entry in entries[:limit]:
+        title = entry.get("title", "タイトルなし")
+        link = entry.get("link", "#")
+        simplified.append({"title": title, "link": link})
+    return simplified
+
 
 # RSS取得・表示関数（必ず新しいタブで開くリンク＋予備フィード対応）
 def display_feed(url, limit=5, fallback_url=None):
     try:
-        feed = parse_feed_with_fallback(url)
-        entries = getattr(feed, "entries", [])
-
-        if not entries and fallback_url:
-            feed = parse_feed_with_fallback(fallback_url)
-            entries = getattr(feed, "entries", [])
-
+        entries = fetch_feed_entries(url, limit=limit, fallback_url=fallback_url)
         if entries:
             items_html = []
-            for entry in entries[:limit]:
-                title = entry.get('title', 'タイトルなし')
-                link = entry.get('link', '#')
+            for item in entries:
+                safe_title = html.escape(str(item["title"]))
+                safe_link = html.escape(str(item["link"]), quote=True)
                 items_html.append(
                     f'<li style="margin-bottom: 6px;">'
-                    f'<a href="{link}" target="_blank" rel="noopener noreferrer">{title}</a>'
+                    f'<a href="{safe_link}" target="_blank" rel="noopener noreferrer">{safe_title}</a>'
                     f'</li>'
                 )
             st.markdown(
@@ -97,6 +112,7 @@ def display_feed(url, limit=5, fallback_url=None):
             st.info("ニュースを取得できませんでした。")
     except Exception as e:
         st.error(f"読み込みエラー: {e}")
+
 
 # ---------------------------------------------------------
 # サイドバーによる画面切り替え
